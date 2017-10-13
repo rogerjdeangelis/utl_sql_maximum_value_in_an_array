@@ -119,4 +119,33 @@ proc sql;
 ;quit;
 
 
+Arthur Tabachneck <art@analystfinder.com>
+10:54 AM (4 hours ago)
 
+ to SAS-L, me 
+Roger,
+
+Another alternative is to have SQL create a macro variable that mimics the desired array. e.g.:
+
+data have;
+  input miss match more much that;
+  cards;
+1 2 3 4 5
+5 4 3 2 1
+1 1 2 1 3
+;
+
+proc sql noprint;
+  select name
+    into :vars separated by ','
+      from dictionary.columns
+        where libname='WORK' and
+              memname='HAVE' and
+              upcase(name) like 'M%'
+  ;
+
+  create table want as
+    select *, max(&vars.) as max_of_m_vars
+      from have
+  ;
+quit;
